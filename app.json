@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "study-mate",
+    "slug": "study-mate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "INTERNET",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "INTERNET"
+      ],
+      "package": "com.utsavdholiya05.studymate"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "YT_API_KEY": "AIzaSyAc_E3HASG2hDK8rLZrfOSZeRu-EiBpYfQ"
+    }
+  }
+}
