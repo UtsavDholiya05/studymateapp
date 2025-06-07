@@ -256,7 +256,7 @@ const Homepage = () => {
               elevation: 5,
               justifyContent: "space-between",
             }}
-            onPress={() => navigation.navigate("smp")} // Navigate to studygroup
+            onPress={() => navigation.navigate("studymaterial")} // Navigate to studygroup
           >
             <Ionicons name="document-text" size={width * 0.1} color="#000" />
             <Text

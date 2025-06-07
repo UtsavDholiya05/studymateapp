@@ -20,7 +20,7 @@ import { Inter_400Regular } from "@expo-google-fonts/inter";
 import MeetingScreen from "./screens/MeetingScreen";
 import bottomtab from "./screens/bottomtab";
 import CustomDrawer from "./screens/customDrawer";
-import studymaterialpage from "./screens/studymaterialpage";
+import studymaterialpage from "./screens/notes";
 import Edushorts from "./screens/Edushorts"; 
 import ToDoList from "./screens/ToDoList";
 import FolderDetailScreen from "./screens/FolderDetailScreen";
@@ -44,7 +44,7 @@ function MainStack() {
       <Stack.Screen name="editprofilepage" component={EditProfilePage} />
       <Stack.Screen name="meetingscreen" component={MeetingScreen} />
       <Stack.Screen name="bottomtab" component={bottomtab} />
-      <Stack.Screen name="notes" component={require("./screens/notesScreen").default} />
+      <Stack.Screen name="notes" component={require("./screens/studymaterial").default} />
       <Stack.Screen name="studymaterial" component={studymaterialpage} />
       <Stack.Screen name="Edushorts" component={Edushorts} />
       <Stack.Screen name="ToDoList" component={ToDoList} />

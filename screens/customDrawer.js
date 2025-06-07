@@ -9,7 +9,7 @@ const CustomDrawer = ({ navigation }) => {
 
   return (
     <View style={styles.drawer}>
-      {/* Back B utton */}
+      {/* Back Button */}
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.closeDrawer()}

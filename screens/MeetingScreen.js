@@ -21,6 +21,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Audio } from "expo-av";
 
 const { height, width } = Dimensions.get("window");
 const BASE_ROOM_PREFIX = "studymateapp-";
@@ -45,6 +46,11 @@ const MeetingScreen = () => {
   const [meetingTitle, setMeetingTitle] = useState("");
   const [selectedCallId, setSelectedCallId] = useState(null);
 
+  // Recording state
+  const [recording, setRecording] = useState(null);
+  const [recordings, setRecordings] = useState([]);
+  const [recordingModalVisible, setRecordingModalVisible] = useState(false);
+
   // Load scheduled calls from AsyncStorage on mount
   useEffect(() => {
     const loadScheduledCalls = async () => {
@@ -62,6 +68,20 @@ const MeetingScreen = () => {
   useEffect(() => {
     AsyncStorage.setItem("scheduledCalls", JSON.stringify(scheduledCalls));
   }, [scheduledCalls]);
+
+  // Load recordings from AsyncStorage on mount
+  useEffect(() => {
+    const loadRecordings = async () => {
+      const stored = await AsyncStorage.getItem("meetingRecordings");
+      if (stored) setRecordings(JSON.parse(stored));
+    };
+    loadRecordings();
+  }, []);
+
+  // Save recordings to AsyncStorage whenever they change
+  useEffect(() => {
+    AsyncStorage.setItem("meetingRecordings", JSON.stringify(recordings));
+  }, [recordings]);
 
   const cardData = [
     {
@@ -101,12 +121,12 @@ const MeetingScreen = () => {
       backgroundColor: "#FFFFF1",
     },
     {
-      title: "Share Screen",
+      title: "Recording",
       icon: (
-        <FontAwesome6
-          name="arrow-up"
+        <MaterialCommunityIcons
+          name="record-rec"
           size={width * 0.1}
-          color="#000"
+          color={recording ? "red" : "#000"}
           style={{ alignSelf: "center" }}
         />
       ),
@@ -168,7 +188,7 @@ const MeetingScreen = () => {
     const link = `https://whereby.com/${createdRoomCode}`;
     if (Clipboard && Clipboard.setString) {
       Clipboard.setString(link);
-      Alert.alert("Copied!", "Meeting link copied to clipboard.");
+      alert("Copied!", "Meeting link copied to clipboard.");
     }
   };
 
@@ -181,13 +201,50 @@ const MeetingScreen = () => {
   // --- JOIN MEETING LOGIC ---
   const handleJoinMeeting = () => {
     if (!meetingId.trim()) {
-      Alert.alert("Please enter a meeting code.");
+      alert("Please enter a meeting code.");
       return;
     }
     setModalVisible(false);
     navigation.navigate("videocall", { roomCode: meetingId.trim() });
     setMeetingId("");
     setUserName("");
+  };
+
+  // Start recording
+  const startRecording = async () => {
+    try {
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+    } catch (err) {
+      alert("Failed to start recording: " + err.message);
+    }
+  };
+
+  // Stop recording and save
+  const stopRecording = async () => {
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecordings([...recordings, { uri, date: new Date() }]);
+      setRecording(null);
+      alert("Recording saved!");
+    } catch (err) {
+      alert("Failed to stop recording: " + err.message);
+    }
+  };
+
+  // Delete a recording
+  const deleteRecording = (idx) => {
+    const updated = [...recordings];
+    updated.splice(idx, 1);
+    setRecordings(updated);
   };
 
   return (
@@ -344,6 +401,8 @@ const MeetingScreen = () => {
                 setScheduleModalVisible(true);
               } else if (card.title === "New Meeting") {
                 handleNewMeeting();
+              } else if (card.title === "Recording") {
+                setRecordingModalVisible(true);
               }
             }}
           >
@@ -1056,6 +1115,140 @@ const MeetingScreen = () => {
                 </Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Recording Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={recordingModalVisible}
+        onRequestClose={() => setRecordingModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 16,
+              padding: 24,
+              width: "90%",
+              maxHeight: "80%",
+              shadowColor: "#000",
+              shadowOpacity: 0.2,
+              shadowRadius: 6,
+              elevation: 12,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+              Meeting Recordings
+            </Text>
+            <TouchableOpacity
+              onPress={recording ? stopRecording : startRecording}
+              style={{
+                backgroundColor: recording ? "#FF6B6B" : "#9CA37C",
+                borderRadius: 10,
+                padding: 16,
+                marginBottom: 16,
+                width: "80%",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                {recording ? "Stop Recording" : "Start Recording"}
+              </Text>
+            </TouchableOpacity>
+            <Text style={{ fontWeight: "bold", marginBottom: 8 }}>
+              Saved Recordings:
+            </Text>
+            <ScrollView style={{ maxHeight: 200, width: "100%" }}>
+              {recordings.length === 0 ? (
+                <Text style={{ color: "#888", textAlign: "center" }}>No recordings yet.</Text>
+              ) : (
+                recordings.map((rec, idx) => (
+                  <View
+                    key={idx}
+                    style={{
+                      marginBottom: 14,
+                      backgroundColor: "#f6f6e9",
+                      borderRadius: 8,
+                      padding: 10,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                    }}
+                  >
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 13, color: "#333" }}>
+                        {rec.date
+                          ? format(new Date(rec.date), "dd MMM yyyy, hh:mm a")
+                          : ""}
+                      </Text>
+                      <View style={{ flexDirection: "row", gap: 8, marginTop: 4 }}>
+                        <TouchableOpacity
+                          onPress={async () => {
+                            const sound = new Audio.Sound();
+                            await sound.loadAsync({ uri: rec.uri });
+                            await sound.playAsync();
+                          }}
+                          style={{
+                            backgroundColor: "#566D67",
+                            borderRadius: 8,
+                            paddingVertical: 6,
+                            paddingHorizontal: 14,
+                            marginRight: 6,
+                          }}
+                        >
+                          <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                            ▶ Play
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => deleteRecording(idx)}
+                          style={{
+                            backgroundColor: "#FF6B6B",
+                            borderRadius: 8,
+                            paddingVertical: 6,
+                            paddingHorizontal: 14,
+                          }}
+                        >
+                          <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                            🗑 Delete
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              onPress={() => setRecordingModalVisible(false)}
+              style={{
+                marginTop: 16,
+                backgroundColor: "#fff",
+                borderRadius: 10,
+                borderColor: "#666",
+                borderWidth: 1,
+                alignItems: "center",
+                paddingVertical: 10,
+                width: "80%",
+              }}
+            >
+              <Text style={{ color: "#000", fontWeight: "bold" }}>Close</Text>
+            </TouchableOpacity>
+            <Text style={{ color: "#888", marginTop: 10, fontSize: 12, textAlign: "center" }}>
+              * Only audio recording is supported in Expo. For screen recording, use a native app or OS feature.
+            </Text>
           </View>
         </View>
       </Modal>
