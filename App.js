@@ -14,7 +14,7 @@ import Homepage from "./screens/Homepage";
 import profilepage from "./screens/profilepage";
 import mygroups from "./screens/mygroups";
 import EditProfilePage from "./screens/EditProfilePage"; 
-import notificationpage from "./screens/notificationpage";
+import notification from "./screens/notification";
 import { PlayfairDisplay_400Regular } from "@expo-google-fonts/playfair-display";
 import { Inter_400Regular } from "@expo-google-fonts/inter";
 import MeetingScreen from "./screens/MeetingScreen";
@@ -25,7 +25,7 @@ import Edushorts from "./screens/Edushorts";
 import ToDoList from "./screens/ToDoList";
 import FolderDetailScreen from "./screens/FolderDetailScreen";
 import videocall from "./screens/videocall";
-
+import ChatScreen from "./screens/ChatScreen";
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
@@ -34,13 +34,12 @@ SplashScreen.preventAutoHideAsync();
 
 function MainStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="homepage">
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="notification">
       <Stack.Screen name="loginscreen" component={LoginScreen} />
       <Stack.Screen name="homepage" component={Homepage} />
       <Stack.Screen name ="otpscreen" component={OtpScreen} />
       <Stack.Screen name="profilepage" component={profilepage} />
       <Stack.Screen name="mygroups" component={mygroups} />
-      <Stack.Screen name="notificationpage" component={notificationpage} />
       <Stack.Screen name="editprofilepage" component={EditProfilePage} />
       <Stack.Screen name="meetingscreen" component={MeetingScreen} />
       <Stack.Screen name="bottomtab" component={bottomtab} />
@@ -50,6 +49,8 @@ function MainStack() {
       <Stack.Screen name="ToDoList" component={ToDoList} />
       <Stack.Screen name="FolderDetail" component={FolderDetailScreen} options={{ headerShown: false }} />
       <Stack.Screen name="videocall" component={videocall} />
+      <Stack.Screen name="notification" component={notification} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   );
 }
