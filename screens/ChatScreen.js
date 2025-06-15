@@ -172,7 +172,7 @@ const ChatScreen = () => {
           ref={flatListRef}
           data={messages}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ paddingHorizontal: width * 0.04, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingHorizontal: width * 0.04, paddingBottom: 120 }}
           renderItem={({ item }) => (
             <View style={{ marginBottom: width * 0.025 }}>
               <View
@@ -230,9 +230,11 @@ const ChatScreen = () => {
               borderRadius: width * 0.02,
               borderWidth: 0,
               paddingHorizontal: width * 0.04,
+              paddingVertical: width * 0.02, // Add some vertical padding
               fontSize: width * 0.04,
               marginRight: width * 0.02,
-              color: "#222",
+              color: "#000", // Make text darker for better contrast
+              fontWeight: "400", // Add slightly bolder font
             }}
             placeholder="type your message here"
             placeholderTextColor="#888"
@@ -255,6 +257,9 @@ const ChatScreen = () => {
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </View>
+      <Text style={{position: 'absolute', top: -20, left: 10, color: 'red'}}>
+        Text: {input}
+      </Text>
     </View>
   );
 };

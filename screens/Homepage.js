@@ -5,6 +5,7 @@ import {
   Dimensions,
   TouchableOpacity,
   StatusBar,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -65,7 +66,12 @@ const Homepage = () => {
         </View>
       </View>
 
-      <View style={{ backgroundColor: "#000" }}>
+      {/* Use ScrollView and add paddingBottom to avoid overlap */}
+      <ScrollView
+        style={{ backgroundColor: "#000" }}
+        contentContainerStyle={{ paddingBottom: width * 0.20 }}
+        showsVerticalScrollIndicator={false}
+      >
         <TouchableOpacity
           style={{
             backgroundColor: "#FFFFF1",
@@ -170,7 +176,7 @@ const Homepage = () => {
 
           {/* Card 2 - EduShorts */}
           <TouchableOpacity
-          onPress={() => navigation.navigate("Edushorts")} 
+            onPress={() => navigation.navigate("Edushorts")}
             style={{
               backgroundColor: "#FFFFF1",
               marginHorizontal: width * 0.02,
@@ -256,7 +262,7 @@ const Homepage = () => {
               elevation: 5,
               justifyContent: "space-between",
             }}
-            onPress={() => navigation.navigate("studymaterial")} // Navigate to studygroup
+            onPress={() => navigation.navigate("studymaterial")}
           >
             <Ionicons name="document-text" size={width * 0.1} color="#000" />
             <Text
@@ -288,7 +294,7 @@ const Homepage = () => {
             height: height * 0.17,
             justifyContent: "space-between",
           }}
-          onPress={() => navigation.navigate("notes")} // <-- Add this linez
+          onPress={() => navigation.navigate("notes")}
         >
           <FontAwesome5 name="book" size={width * 0.1} color="black" />
           <View>
@@ -305,7 +311,7 @@ const Homepage = () => {
             </Text>
           </View>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 };
