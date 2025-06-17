@@ -36,7 +36,7 @@ const CustomDrawer = ({ navigation }) => {
         {/* Navigate to Home */}
         <TouchableOpacity
           style={styles.activeItem}
-          onPress={() => navigation.navigate("MainStack", { screen: "Homepage" })}
+          onPress={() => navigation.navigate("MainTabs", { screen: "Home" })}
         >
           <Ionicons name="home" size={22} color="#111" style={{ marginRight: 8 }} />
           <Text style={styles.activeText}>Home</Text>
@@ -54,7 +54,7 @@ const CustomDrawer = ({ navigation }) => {
         {/* To-Do Section */}
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("ToDoList")}
+          onPress={() => navigation.navigate("MainTabs", { screen: "Home", params: { screen: "ToDoList" } })}
         >
           <Ionicons name="checkmark-circle" size={22} color="#f5f5dc" style={{ marginRight: 8 }} />
           <Text style={styles.menuText}>To-Do</Text>
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingVertical: 6,
     paddingHorizontal: 0,
-    marginHorizontal: 10, // Added marginHorizontal
+    marginHorizontal: 10,
     backgroundColor: "#222",
     borderRadius: 8,
   },
