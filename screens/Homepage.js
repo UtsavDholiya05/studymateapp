@@ -262,7 +262,7 @@ const Homepage = () => {
               elevation: 5,
               justifyContent: "space-between",
             }}
-            onPress={() => navigation.navigate("studymaterial")}
+            onPress={() => navigation.navigate("notes")}
           >
             <Ionicons name="document-text" size={width * 0.1} color="#000" />
             <Text
@@ -294,7 +294,7 @@ const Homepage = () => {
             height: height * 0.17,
             justifyContent: "space-between",
           }}
-          onPress={() => navigation.navigate("notes")}
+          onPress={() => navigation.navigate("studymaterial")}
         >
           <FontAwesome5 name="book" size={width * 0.1} color="black" />
           <View>

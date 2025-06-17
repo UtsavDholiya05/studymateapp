@@ -97,7 +97,7 @@ const LoginScreen = ({ navigation }) => {
           await AsyncStorage.setItem("user", JSON.stringify(user));
 
           setLoading(false);
-          navigation.navigate("otpscreen", {
+          navigation.navigate("OtpScreen", {
             email: formData.email,
             authToken: token,
           });

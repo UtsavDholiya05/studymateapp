@@ -7,62 +7,80 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { Kanit_400Regular } from "@expo-google-fonts/kanit";
 import { Inconsolata_400Regular } from "@expo-google-fonts/inconsolata";
+import { PlayfairDisplay_400Regular } from "@expo-google-fonts/playfair-display";
+import { Inter_400Regular } from "@expo-google-fonts/inter";
+import { Dimensions } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+// Import your screens
 import LoginScreen from "./screens/loginscreen";
 import SignupScreen from "./screens/signupscreen";
 import ForgotPass from "./screens/forgotpass";
 import OtpScreen from "./screens/otpscreen";
-import Homepage from "./screens/Homepage"; 
-import profilepage from "./screens/profilepage";
-import mygroups from "./screens/mygroups";
-import EditProfilePage from "./screens/EditProfilePage"; 
-import notification from "./screens/notification";
-import { PlayfairDisplay_400Regular } from "@expo-google-fonts/playfair-display";
-import { Inter_400Regular } from "@expo-google-fonts/inter";
+import Homepage from "./screens/Homepage";
+import ProfilePage from "./screens/profilepage";
+import MyGroups from "./screens/mygroups";
+import EditProfilePage from "./screens/EditProfilePage";
+import Notification from "./screens/notification";
 import MeetingScreen from "./screens/MeetingScreen";
 import CustomDrawer from "./screens/customDrawer";
-import studymaterialpage from "./screens/notes";
-import Edushorts from "./screens/Edushorts"; 
+import StudyMaterialPage from "./screens/notes";
+import EduShorts from "./screens/Edushorts";
 import ToDoList from "./screens/ToDoList";
 import FolderDetailScreen from "./screens/FolderDetailScreen";
-import videocall from "./screens/videocall";
-import chatscreen from "./screens/chatscreen";
-import { View, Text, Dimensions } from "react-native";
-import { Ionicons, Feather } from "@expo/vector-icons";
-
+import VideoCall from "./screens/videocall";
+import ChatScreen from "./screens/chatscreen";
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get("window");
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
-const MainScreensStack = createStackNavigator();
-function MainScreensStackScreen() {
+// Stack navigator for Home tab
+function HomeStackScreen() {
   return (
-    <MainScreensStack.Navigator screenOptions={{ headerShown: false }}>
-      <MainScreensStack.Screen name="Homepage" component={Homepage} />
-      <MainScreensStack.Screen name="profilepage" component={profilepage} />
-      <MainScreensStack.Screen name="mygroups" component={mygroups} />
-      <MainScreensStack.Screen name="editprofilepage" component={EditProfilePage} />
-      <MainScreensStack.Screen name="meetingscreen" component={MeetingScreen} />
-      <MainScreensStack.Screen name="notes" component={require("./screens/studymaterial").default} />
-      <MainScreensStack.Screen name="studymaterial" component={studymaterialpage} />
-      <MainScreensStack.Screen name="Edushorts" component={Edushorts} />
-      <MainScreensStack.Screen name="ToDoList" component={ToDoList} />
-      <MainScreensStack.Screen name="FolderDetail" component={FolderDetailScreen} />
-      <MainScreensStack.Screen name="videocall" component={videocall} />
-      <MainScreensStack.Screen name="notification" component={notification} />
-      <MainScreensStack.Screen name="
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Homepage" component={Homepage} />
+      <Stack.Screen name="meetingscreen" component={MeetingScreen} />
+      <Stack.Screen name="studymaterial" component={require("./screens/studymaterial").default} />
+      <Stack.Screen name="Edushorts" component={EduShorts} />
+      <Stack.Screen name="ToDoList" component={ToDoList} />
+      <Stack.Screen name="FolderDetail" component={FolderDetailScreen} />
+      <Stack.Screen name="videocall" component={VideoCall} />
+      <Stack.Screen name="mygroups" component={MyGroups} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="profilepage" component={ProfilePage} />
+      <Stack.Screen name="editprofilepage" component={EditProfilePage} />
+      <Stack.Screen name='notes' component={require("./screens/notes").default} />
       
-      " component={chatscreen} />
-    </MainScreensStack.Navigator>
+    </Stack.Navigator>
   );
 }
 
-// Bottom Tab Navigator styled to match your app
-function BottomTabNavigator() {
+// Stack navigator for Groups tab
+function GroupsStackScreen() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MyGroups" component={MyGroups} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+    </Stack.Navigator>
+  );
+}
+
+// Stack navigator for Notifications tab
+function NotificationsStackScreen() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Notification" component={Notification} />
+    </Stack.Navigator>
+  );
+}
+
+// Bottom Tab Navigator - This goes INSIDE the drawer
+function MainTabNavigator() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -87,39 +105,47 @@ function BottomTabNavigator() {
           if (route.name === "Home") {
             return <Ionicons name="home-outline" size={size * 1.1} color={color} />;
           }
+          if (route.name === "Groups") {
+            return <Ionicons name="people-outline" size={size * 1.1} color={color} />;
+          }
           if (route.name === "Notifications") {
             return <Ionicons name="notifications-outline" size={size * 1.1} color={color} />;
           }
-          if (route.name === "Settings") {
-            return <Feather name="settings" size={size * 1.1} color={color} />;
-          }
-          if (route.name === "EditProfile") {
+          if (route.name === "Profile") {
             return <Ionicons name="person-outline" size={size * 1.1} color={color} />;
           }
         },
       })}
     >
-      <Tab.Screen name="Home" component={MainScreensStackScreen} />
-      <Tab.Screen name="Notifications" component={NotificationStackScreen} />
-      <Tab.Screen name="EditProfile" component={EditProfilePage} />
-      {/* <Tab.Screen name="Settings" component={Settings} /> */}
+      <Tab.Screen name="Home" component={HomeStackScreen} />
+      {/* <Tab.Screen name="Groups" component={GroupsStackScreen} /> */}
+      <Tab.Screen name="Notifications" component={NotificationsStackScreen} />
+      <Tab.Screen name="Profile" component={ProfilePage} />
     </Tab.Navigator>
   );
 }
 
-// Add this function to create a stack for notifications
-function NotificationStackScreen() {
+// Drawer navigator that contains the bottom tabs
+function MainDrawer() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="NotificationScreen" component={notification} />
-      <Stack.Screen name="chatscreen" component={chatscreen} />
-    </Stack.Navigator>
+    <Drawer.Navigator
+      drawerContent={props => <CustomDrawer {...props} />}
+      screenOptions={{ 
+        headerShown: false,
+        drawerStyle: {
+          width: "75%",
+          backgroundColor: "#fafaea",
+        },
+      }}
+    >
+      <Drawer.Screen name="MainTabs" component={MainTabNavigator} />
+      <Drawer.Screen name="EditProfile" component={EditProfilePage} />
+      {/* Add other screens you want accessible from drawer but not tabs */}
+    </Drawer.Navigator>
   );
 }
 
-// In your login/signup flow, after successful login, use:
-// navigation.replace("MainTabs");
-
+// Root Stack - Auth flows before drawer+tabs
 export default function App() {
   const [fontsLoaded] = useFonts({
     Kanit_400Regular,
@@ -135,24 +161,19 @@ export default function App() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null; // You can replace this with a loading indicator
+    return null;
   }
 
   return (
     <NavigationContainer>
-      <Drawer.Navigator
-        drawerContent={(props) => <CustomDrawer {...props} />}
-        screenOptions={{
-          headerShown: false,
-          drawerStyle: {
-            width: "100%",
-            backgroundColor: "#111",
-          },
-          overlayColor: "rgba(0,0,0,0.3)",
-        }}
-      >
-        <Drawer.Screen name="Main" component={BottomTabNavigator} />
-      </Drawer.Navigator>
+      <Stack.Navigator initialRouteName="MainApp" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="SignupScreen" component={SignupScreen} />
+        <Stack.Screen name="ForgotPass" component={ForgotPass} />
+        <Stack.Screen name="OtpScreen" component={OtpScreen} />
+        {/* After login/OTP, navigate to MainDrawer which contains tabs */}
+        <Stack.Screen name="MainApp" component={MainDrawer} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

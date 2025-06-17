@@ -16,7 +16,7 @@ import Constants from "expo-constants"; // <-- Add this import
 
 const { width } = Dimensions.get("window");
 
-const StudyMaterialPage = () => {
+const Notes = () => {
   const [folders, setFolders] = useState([]);
   const [folderInput, setFolderInput] = useState("");
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -417,4 +417,4 @@ const StudyMaterialPage = () => {
   );
 };
 
-export default StudyMaterialPage;
+export default Notes;

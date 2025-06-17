@@ -45,12 +45,7 @@ const CustomDrawer = ({ navigation }) => {
         {/* Navigate to Edit Profile Page */}
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("Main", { 
-            screen: "Home",  // Tab navigator name
-            params: {
-              screen: "editprofilepage"  // Stack screen name
-            }
-          })}
+          onPress={() => navigation.navigate("EditProfile")}
         >
           <Ionicons name="settings" size={22} color="#f5f5dc" style={{ marginRight: 8 }} />
           <Text style={styles.menuText}>Settings</Text>
@@ -59,12 +54,7 @@ const CustomDrawer = ({ navigation }) => {
         {/* To-Do Section */}
         <TouchableOpacity
           style={styles.menuItem}
-          onPress={() => navigation.navigate("Main", { 
-            screen: "Home", 
-            params: {
-              screen: "ToDoList"
-            }
-          })}
+          onPress={() => navigation.navigate("ToDoList")}
         >
           <Ionicons name="checkmark-circle" size={22} color="#f5f5dc" style={{ marginRight: 8 }} />
           <Text style={styles.menuText}>To-Do</Text>

@@ -70,7 +70,7 @@ const otpscreen = ({ navigation, route }) => {
   };
 
   const verifyOtp = () => {
-    navigation.navigate("homepage");
+    navigation.replace("MainApp");
   };
 
   const handleChange = (text, index) => {

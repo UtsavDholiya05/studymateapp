@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
-const ToDoPage = () => {
+const ToDoList = () => {
   const [tasks, setTasks] = useState([]);
   const [taskInput, setTaskInput] = useState("");
 
@@ -204,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ToDoPage;
+export default ToDoList;
