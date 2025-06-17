@@ -1,11 +1,25 @@
-// App.js
-import React from 'react';
-import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { SafeAreaView, StyleSheet, View, Text, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Camera } from 'expo-camera';
 
-export default function App({ navigation }) {
+export default function VideoCallScreen({ navigation }) {
   const { width, height } = useWindowDimensions();
+
+  useEffect(() => {
+    (async () => {
+      const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
+      const { status: micStatus } = await Camera.requestMicrophonePermissionsAsync();
+      if (cameraStatus !== 'granted' || micStatus !== 'granted') {
+        Alert.alert(
+          'Permissions Required',
+          'Camera and microphone access are required for video calls.',
+          [{ text: 'OK', onPress: () => navigation.goBack() }]
+        );
+      }
+    })();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -23,6 +37,10 @@ export default function App({ navigation }) {
         <WebView
           source={{ uri: 'https://whereby.com/studymateapp' }}
           style={styles.webview}
+          mediaPlaybackRequiresUserAction={false}
+          allowsInlineMediaPlayback={true}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
         />
       </View>
     </SafeAreaView>

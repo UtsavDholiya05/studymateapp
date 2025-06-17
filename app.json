@@ -22,11 +22,7 @@
       },
       "permissions": [
         "CAMERA",
-        "RECORD_AUDIO",
-        "INTERNET",
-        "CAMERA",
-        "RECORD_AUDIO",
-        "INTERNET"
+        "AUDIO_RECORDING"
       ],
       "package": "com.utsavdholiya05.studymate"
     },
