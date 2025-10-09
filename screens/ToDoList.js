@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -11,12 +10,14 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
 const ToDoList = () => {
   const [tasks, setTasks] = useState([]);
   const [taskInput, setTaskInput] = useState("");
+  const navigation = useNavigation();
 
   // Load tasks from AsyncStorage on mount
   useEffect(() => {
@@ -88,7 +89,7 @@ const ToDoList = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={width * 0.08} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerText}>To-Do List</Text>
@@ -136,6 +137,9 @@ const styles = StyleSheet.create({
   backButton: {
     position: "absolute",
     left: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
   },
   headerText: {
     fontSize: width * 0.08,
@@ -206,3 +210,4 @@ const styles = StyleSheet.create({
 });
 
 export default ToDoList;
+

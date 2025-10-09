@@ -209,7 +209,10 @@ const notification = () => {
                 borderColor: "#aaa",
                 marginRight: width * 0.02,
               }}
-              onPress={() => navigation.navigate("chatscreen", { user: item.sender, avatar: item.avatar })}
+              onPress={() => navigation.navigate("ChatScreen", {
+                user: "Sender",
+                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+              })}
             >
               <Text style={{ fontSize: width * 0.035, color: "#333" }}>
                 go to message
@@ -277,7 +280,10 @@ const notification = () => {
                 borderColor: "#aaa",
                 marginRight: width * 0.02,
               }}
-              onPress={() => navigation.navigate("ChatScreen", { user: item.sender, avatar: item.avatar })}
+              onPress={() => navigation.navigate("ChatScreen", {
+                user: "Sender",
+                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+              })}
             >
               <Text style={{ fontSize: width * 0.035, color: "#333" }}>
                 go to message

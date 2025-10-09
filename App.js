@@ -167,11 +167,10 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="MainApp" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="LoginScreen" component={LoginScreen} />
-        <Stack.Screen name="SignupScreen" component={SignupScreen} />
-        <Stack.Screen name="ForgotPass" component={ForgotPass} />
+        <Stack.Screen name="login" component={LoginScreen} />
+        <Stack.Screen name="signup" component={SignupScreen} />
+        <Stack.Screen name="forgotpass" component={ForgotPass} />
         <Stack.Screen name="OtpScreen" component={OtpScreen} />
-        {/* After login/OTP, navigate to MainDrawer which contains tabs */}
         <Stack.Screen name="MainApp" component={MainDrawer} />
       </Stack.Navigator>
     </NavigationContainer>

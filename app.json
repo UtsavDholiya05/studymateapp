@@ -33,7 +33,11 @@
       "expo-font"
     ],
     "extra": {
-      "YT_API_KEY": "AIzaSyAc_E3HASG2hDK8rLZrfOSZeRu-EiBpYfQ"
-    }
+      "YT_API_KEY": "AIzaSyAc_E3HASG2hDK8rLZrfOSZeRu-EiBpYfQ",
+      "eas": {
+        "projectId": "2a338410-a026-4784-8b88-adfb558cb3c2"
+      }
+    },
+    "owner": "utsavdholiya05"
   }
 }
