@@ -28,9 +28,12 @@ const GroupChatScreen = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [showMembers, setShowMembers] = useState(false);
+  const [showAddMember, setShowAddMember] = useState(false);
   const [members, setMembers] = useState([]);
   const [currentUserId, setCurrentUserId] = useState("user123");
   const [currentUserName, setCurrentUserName] = useState("You");
+  const [newMemberName, setNewMemberName] = useState("");
+  const [newMemberEmail, setNewMemberEmail] = useState("");
   const flatListRef = useRef();
 
   const MESSAGES_STORAGE_KEY = `@group_chat_${groupId}`;
@@ -164,6 +167,32 @@ const GroupChatScreen = () => {
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
+  };
+
+  const addNewMember = () => {
+    if (!newMemberName.trim()) {
+      alert("Please enter member name");
+      return;
+    }
+
+    // Check if member already exists
+    if (members.some(m => m.name.toLowerCase() === newMemberName.toLowerCase())) {
+      alert("Member already exists in this group");
+      return;
+    }
+
+    const newMember = {
+      id: "user" + Date.now(),
+      name: newMemberName.trim(),
+      email: newMemberEmail.trim() || "user@example.com",
+      avatar: `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 50)}.jpg`,
+      role: "Member",
+    };
+
+    setMembers([...members, newMember]);
+    setNewMemberName("");
+    setNewMemberEmail("");
+    setShowAddMember(false);
   };
 
   const renderMessage = ({ item }) => {
@@ -383,9 +412,24 @@ const GroupChatScreen = () => {
               >
                 Group Members ({members.length})
               </Text>
-              <TouchableOpacity onPress={() => setShowMembers(false)}>
-                <Ionicons name="close" size={28} color="#fff" />
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                <TouchableOpacity
+                  onPress={() => setShowAddMember(true)}
+                  style={{
+                    backgroundColor: "#9CA37C",
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ color: "#000", fontWeight: "600", fontSize: 12 }}>
+                    + Add
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowMembers(false)}>
+                  <Ionicons name="close" size={28} color="#fff" />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <ScrollView
@@ -449,6 +493,115 @@ const GroupChatScreen = () => {
                 </View>
               ))}
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Member Modal */}
+      <Modal visible={showAddMember} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#1a1a1a",
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              paddingHorizontal: 20,
+              paddingVertical: 30,
+              paddingBottom: 40,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 18,
+                  fontWeight: "600",
+                }}
+              >
+                Add Member to Group
+              </Text>
+              <TouchableOpacity onPress={() => setShowAddMember(false)}>
+                <Ionicons name="close" size={28} color="#fff" />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              placeholder="Member Name"
+              placeholderTextColor="#666"
+              value={newMemberName}
+              onChangeText={setNewMemberName}
+              style={{
+                backgroundColor: "#2a2a2a",
+                color: "#fff",
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderRadius: 10,
+                marginBottom: 12,
+                fontSize: 14,
+              }}
+            />
+
+            <TextInput
+              placeholder="Email (Optional)"
+              placeholderTextColor="#666"
+              value={newMemberEmail}
+              onChangeText={setNewMemberEmail}
+              keyboardType="email-address"
+              style={{
+                backgroundColor: "#2a2a2a",
+                color: "#fff",
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderRadius: 10,
+                marginBottom: 20,
+                fontSize: 14,
+              }}
+            />
+
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <TouchableOpacity
+                onPress={() => setShowAddMember(false)}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#2a2a2a",
+                  paddingVertical: 14,
+                  borderRadius: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={addNewMember}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#9CA37C",
+                  paddingVertical: 14,
+                  borderRadius: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ color: "#000", fontWeight: "600", fontSize: 14 }}>
+                  Add Member
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
