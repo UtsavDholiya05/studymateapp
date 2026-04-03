@@ -30,6 +30,7 @@ import ToDoList from "./screens/ToDoList";
 import FolderDetailScreen from "./screens/FolderDetailScreen";
 import VideoCall from "./screens/videocall";
 import ChatScreen from "./screens/chatscreen";
+import GroupChatScreen from "./screens/groupchatscreen";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +52,7 @@ function HomeStackScreen() {
       <Stack.Screen name="FolderDetail" component={FolderDetailScreen} />
       <Stack.Screen name="videocall" component={VideoCall} />
       <Stack.Screen name="mygroups" component={MyGroups} />
+      <Stack.Screen name="groupchat" component={GroupChatScreen} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="profilepage" component={ProfilePage} />
       <Stack.Screen name="editprofilepage" component={EditProfilePage} />
@@ -65,6 +67,7 @@ function GroupsStackScreen() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MyGroups" component={MyGroups} />
+      <Stack.Screen name="groupchat" component={GroupChatScreen} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   );

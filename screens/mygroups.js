@@ -254,6 +254,13 @@ const MyGroups = () => {
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate("groupchat", {
+                          groupId: group.id,
+                          groupName: group.name,
+                          groupOwner: group.owner,
+                        })
+                      }
                       style={{
                         backgroundColor: "#fff",
                         paddingVertical: height * 0.005,
