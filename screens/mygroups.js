@@ -26,6 +26,8 @@ const MyGroups = () => {
   const [showModal, setShowModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [description, setDescription] = useState("");
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinGroupId, setJoinGroupId] = useState("");
 
   // Load groups from AsyncStorage on mount
   useEffect(() => {
@@ -58,14 +60,18 @@ const MyGroups = () => {
 
     try {
       // await axios.post("https://your-backend.com/group/create", { name: newGroupName, description });
-      Alert.alert("Success", "Group created");
-      setGroups([
-        ...groups,
-        { id: Date.now(), name: newGroupName, owner: "You" },
-      ]);
+      const newId = Date.now().toString();
+      const newGroup = {
+        id: newId,
+        name: newGroupName,
+        owner: "You",
+        description: description.trim(),
+      };
+      setGroups([...groups, newGroup]);
       setShowModal(false);
       setNewGroupName("");
       setDescription("");
+      Alert.alert("Success", `Group created (ID: ${newId})`);
     } catch (error) {
       Alert.alert("Error", "Failed to create group");
     }
@@ -87,6 +93,30 @@ const MyGroups = () => {
         },
       },
     ]);
+  };
+
+  const joinGroupById = async () => {
+    if (!joinGroupId.trim()) {
+      Alert.alert("Validation Error", "Please enter a group ID.");
+      return;
+    }
+    // Find group by ID
+    const stored = await AsyncStorage.getItem("mygroups");
+    let allGroups = stored ? JSON.parse(stored) : [];
+    const group = allGroups.find((g) => String(g.id) === joinGroupId.trim());
+    if (!group) {
+      Alert.alert("Not Found", "No group found with this ID.");
+      return;
+    }
+    // Check if already joined
+    if (groups.some((g) => String(g.id) === joinGroupId.trim())) {
+      Alert.alert("Already Joined", "You are already in this group.");
+      return;
+    }
+    setGroups([...groups, group]);
+    setShowJoinModal(false);
+    setJoinGroupId("");
+    Alert.alert("Success", `Joined group: ${group.name}`);
   };
 
   return (
@@ -217,11 +247,18 @@ const MyGroups = () => {
             <Text style={{ fontSize: width * 0.05, fontWeight: "500" }}>
               My Groups
             </Text>
-            <TouchableOpacity onPress={() => setShowModal(true)}>
-              <Text style={{ fontSize: width * 0.045, color: "#007bff" }}>
-                + new group
-              </Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <TouchableOpacity onPress={() => setShowModal(true)}>
+                <Text style={{ fontSize: width * 0.045, color: "#007bff" }}>
+                  + new group
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowJoinModal(true)}>
+                <Text style={{ fontSize: width * 0.045, color: "#007bff" }}>
+                  Join with Group ID
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <ScrollView style={{ marginTop: height * 0.02 }}>
@@ -250,6 +287,9 @@ const MyGroups = () => {
                     </Text>
                     <Text style={{ fontSize: width * 0.035, color: "#555" }}>
                       {group.owner}
+                    </Text>
+                    <Text style={{ fontSize: width * 0.032, color: "#777" }}>
+                      ID: {group.id}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -317,6 +357,36 @@ const MyGroups = () => {
                 style={styles.modalButton}
               >
                 <Text style={{ color: "#fff" }}>Create</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Join Group Modal */}
+      <Modal visible={showJoinModal} animationType="slide" transparent>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Join Group by ID</Text>
+            <TextInput
+              placeholder="Enter Group ID"
+              value={joinGroupId}
+              onChangeText={setJoinGroupId}
+              style={styles.input}
+              keyboardType="numeric"
+            />
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+              <TouchableOpacity
+                onPress={() => setShowJoinModal(false)}
+                style={[styles.modalButton, { backgroundColor: "gray" }]}
+              >
+                <Text style={{ color: "#fff" }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={joinGroupById}
+                style={styles.modalButton}
+              >
+                <Text style={{ color: "#fff" }}>Join</Text>
               </TouchableOpacity>
             </View>
           </View>
