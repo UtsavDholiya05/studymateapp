@@ -312,7 +312,7 @@ const MyGroups = () => {
                       }}
                     >
                       <Text style={{ fontSize: width * 0.035, color: "#333" }}>
-                        Go to course
+                        Open Group
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => deleteGroup(group.id)}>
