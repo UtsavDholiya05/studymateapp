@@ -12,6 +12,7 @@ import {
   StatusBar,
   Modal,
   ScrollView,
+  SafeAreaView,
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";

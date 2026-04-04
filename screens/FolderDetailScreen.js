@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Linking } from 'react-native';
 import {
   View,
   Text,
@@ -6,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Linking,
   ActivityIndicator,
   Alert,
   ScrollView,
@@ -25,6 +25,7 @@ const { width } = Dimensions.get("window");
 const FolderDetailScreen = ({ route, navigation }) => {
   const { folder, updateFolder } = route.params;
   const [files, setFiles] = useState(folder.files || []);
+  const [pdfToView, setPdfToView] = useState(null);
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -65,22 +66,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
     setLoading(false);
   };
 
-  // Open PDF in external app
-  const openPdf = async (uri, name = "file.pdf") => {
-    if (Platform.OS === "android") {
-      try {
-        await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-          data: uri,
-          flags: 1,
-          type: "application/pdf",
-        });
-      } catch (e) {
-        Alert.alert("Error", "No PDF viewer found or cannot open PDF.");
-      }
-    } else {
-      Linking.openURL(uri);
-    }
-  };
+
 
   // Delete handlers
   const deleteFile = (idx) => {
@@ -226,7 +212,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
         {pdfs.map((pdf, idx) => (
           <View key={idx} style={{ position: "relative" }}>
             <TouchableOpacity
-              onPress={() => openPdf(pdf.uri, pdf.name)}
+              onPress={() => Linking.openURL(pdf.uri)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -259,6 +245,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         ))}
+
       </ScrollView>
 
       {/* Image Preview Modal */}
