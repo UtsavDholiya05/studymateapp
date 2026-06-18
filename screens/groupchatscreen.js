@@ -18,6 +18,7 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { useSocket } from "../context/SocketContext";
 
 const { height, width } = Dimensions.get("window");
 
@@ -25,6 +26,8 @@ const GroupChatScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { groupId, groupName, groupOwner } = route.params;
+  
+  const { socket, setActiveGroupId } = useSocket();
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -148,6 +151,32 @@ const GroupChatScreen = () => {
     }
   }, [members]);
 
+  // Register active group and listen for real-time messages
+  useEffect(() => {
+    setActiveGroupId(String(groupId));
+
+    const handleIncomingMessage = ({ groupId: incomingGroupId, message }) => {
+      if (String(incomingGroupId) === String(groupId)) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === message.id)) return prev;
+          return [...prev, message];
+        });
+        
+        // Auto-scroll to bottom
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      }
+    };
+
+    socket.on("group_message", handleIncomingMessage);
+
+    return () => {
+      setActiveGroupId(null);
+      socket.off("group_message", handleIncomingMessage);
+    };
+  }, [groupId, setActiveGroupId, socket]);
+
   const sendMessage = () => {
     if (!input.trim()) return;
 
@@ -163,13 +192,13 @@ const GroupChatScreen = () => {
       avatar: currentUserAvatar,
     };
 
-    setMessages([...messages, newMessage]);
-    setInput("");
+    socket.emit("group_message", {
+      groupId,
+      groupName,
+      message: newMessage,
+    });
 
-    // Auto-scroll to bottom
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    setInput("");
   };
 
   const addNewMember = () => {

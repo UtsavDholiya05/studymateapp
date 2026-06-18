@@ -31,6 +31,7 @@ import FolderDetailScreen from "./screens/FolderDetailScreen";
 import VideoCall from "./screens/videocall";
 import ChatScreen from "./screens/chatscreen";
 import GroupChatScreen from "./screens/groupchatscreen";
+import { SocketProvider } from "./context/SocketContext";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -79,6 +80,7 @@ function NotificationsStackScreen() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Notification" component={Notification} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="groupchat" component={GroupChatScreen} />
     </Stack.Navigator>
   );
 }
@@ -169,15 +171,17 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      {/* //MainApp */}
-      <Stack.Navigator initialRouteName="MainApp" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="login" component={LoginScreen} />
-        <Stack.Screen name="signup" component={SignupScreen} />
-        <Stack.Screen name="forgotpass" component={ForgotPass} />
-        <Stack.Screen name="OtpScreen" component={OtpScreen} />
-        <Stack.Screen name="MainApp" component={MainDrawer} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SocketProvider>
+      <NavigationContainer>
+        {/* //MainApp */}
+        <Stack.Navigator initialRouteName="MainApp" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="login" component={LoginScreen} />
+          <Stack.Screen name="signup" component={SignupScreen} />
+          <Stack.Screen name="forgotpass" component={ForgotPass} />
+          <Stack.Screen name="OtpScreen" component={OtpScreen} />
+          <Stack.Screen name="MainApp" component={MainDrawer} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SocketProvider>
   );
 }
