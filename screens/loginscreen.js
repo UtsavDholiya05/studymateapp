@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,6 +14,7 @@ import {
   useWindowDimensions,
   StatusBar,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -61,57 +61,27 @@ const LoginScreen = ({ navigation }) => {
     ) {
       try {
         setLoading(true);
-        console.log("Sending POST request to backend...");
+        
+        const dummyToken = "dummy-jwt-token";
+        const dummyUser = {
+          username: "Dummy User",
+          contact: "1234567890",
+          email: formData.email,
+          profileImage: "https://randomuser.me/api/portraits/women/44.jpg"
+        };
 
-        const response = await fetch(`${BASE_URL}/user/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
+        // Store the token and user details in AsyncStorage
+        await AsyncStorage.setItem("token", dummyToken);
+        await AsyncStorage.setItem("user", JSON.stringify(dummyUser));
+
+        setLoading(false);
+        navigation.navigate("OtpScreen", {
+          email: formData.email,
+          authToken: dummyToken,
         });
-
-        console.log("Response Status:", response.status);
-        let responseData;
-        if (
-          response.headers.get("content-type")?.includes("application/json")
-        ) {
-          responseData = await response.json();
-        } else {
-          responseData = await response.text();
-        }
-
-        console.log("Backend Response Data:", responseData);
-
-        if (response.ok) {
-          const token = responseData.authToken;
-          const user = responseData.details;
-
-          if (!token || !user) {
-            throw new Error("Token or user data not received from server.");
-          }
-
-          // Store the token and user details in AsyncStorage
-          await AsyncStorage.setItem("token", token);
-          await AsyncStorage.setItem("user", JSON.stringify(user));
-
-          setLoading(false);
-          navigation.navigate("OtpScreen", {
-            email: formData.email,
-            authToken: token,
-          });
-        } else {
-          setLoading(false);
-          const errorMessage =
-            typeof responseData === "object"
-              ? responseData.message || "Login failed"
-              : responseData || "Login failed";
-          Alert.alert("Error", errorMessage);
-        }
       } catch (error) {
         setLoading(false);
-        console.error("Network Error:", error);
+        console.error("Mock Login Error:", error);
         Alert.alert("Error", error.message || "An unexpected error occurred.");
       }
     } else {

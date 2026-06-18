@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  SafeAreaView,
   TouchableOpacity,
   StatusBar,
   Dimensions,
@@ -12,6 +11,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -33,8 +33,18 @@ const EditProfilePage = () => {
   const fetchUserData = async () => {
     try {
       const storedUser = await AsyncStorage.getItem("user");
-      if (!storedUser) throw new Error("User not found");
-      const user = JSON.parse(storedUser);
+      let user;
+      if (!storedUser) {
+        user = {
+          username: "Dummy User",
+          contact: "1234567890",
+          email: "dummyuser@studymate.com",
+          profileImage: "https://randomuser.me/api/portraits/women/44.jpg"
+        };
+        await AsyncStorage.setItem("user", JSON.stringify(user));
+      } else {
+        user = JSON.parse(storedUser);
+      }
       setUserData(user);
       setEditableData({
         username: user.username || "",
@@ -54,41 +64,17 @@ const EditProfilePage = () => {
 
   const handleSaveChanges = async () => {
     try {
-      // Get JWT token from AsyncStorage
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        Alert.alert("Unauthorized", "User token not found. Please log in again.");
-        navigation.navigate("loginpage"); // Navigate to login if no token found
-        return;
-      }
-
       const updatedUserData = {
         username: editableData.username.trim(),
         contact: editableData.contact.trim(),
         email: editableData.email.trim().toLowerCase(),
       };
 
-      const response = await axios.patch(
-        "https://studymate-cirr.onrender.com/user/update",
-        updatedUserData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Attach JWT here
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        const updatedUser = { ...userData, ...updatedUserData };
-        await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
-        const confirmedUser = await AsyncStorage.getItem("user");
-        console.log("Updated user saved in AsyncStorage:", JSON.parse(confirmedUser));
-        Alert.alert("Success", "Profile updated successfully!");
-        navigation.goBack();
-      } else {
-        Alert.alert("Error", "Failed to update profile. Please try again.");
-      }
+      const updatedUser = { ...userData, ...updatedUserData };
+      await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+      await AsyncStorage.setItem("token", "dummy-jwt-token");
+      Alert.alert("Success", "Profile updated successfully!");
+      navigation.goBack();
     } catch (error) {
       console.error("Failed to save changes:", error);
       Alert.alert("Error", "An unexpected error occurred. Please try again.");

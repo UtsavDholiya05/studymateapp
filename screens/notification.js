@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,77 +6,253 @@ import {
   TouchableOpacity,
   StatusBar,
   Dimensions,
-  ScrollView,
+  FlatList,
+  TextInput,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const { height, width } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
-// Initial notification data
-const initialNewNotifications = [
+const initialChats = [
   {
-    sender: "Sender",
+    id: "1",
+    name: "Sarah Smiths",
+    lastMessage: "Are you ready for the math test?",
+    time: "10:32 AM",
     avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
+    unreadCount: 2,
+    isGroup: false,
   },
   {
-    sender: "Sender",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
+    id: "2",
+    name: "Web Dev Team",
+    lastMessage: "Sarah: Hey everyone! Let's study together",
+    time: "10:40 AM",
+    avatar: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=120&auto=format&fit=crop&q=80",
+    unreadCount: 1,
+    isGroup: true,
+    groupId: "2",
+  },
+  {
+    id: "3",
+    name: "AI Study Group",
+    lastMessage: "Sarah: Hey everyone! Let's study together",
+    time: "Yesterday",
+    avatar: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=120&auto=format&fit=crop&q=80",
+    unreadCount: 0,
+    isGroup: true,
+    groupId: "1",
+  },
+  {
+    id: "4",
+    name: "John Doe",
+    lastMessage: "Can you send the chemistry pdf?",
+    time: "2 hours ago",
+    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
+    unreadCount: 0,
+    isGroup: false,
+  },
+  {
+    id: "5",
+    name: "Emma Watson",
+    lastMessage: "Thanks for the notes!",
+    time: "Monday",
+    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
+    unreadCount: 0,
+    isGroup: false,
   },
 ];
 
-const initialTodayNotifications = [
-  {
-    sender: "Sender",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
-  },
-  {
-    sender: "xyz invited you to join group",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
-  },
-  {
-    sender: "Sender",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
-  },
-  {
-    sender: "xyz invited you to join group",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    time: "4m ago",
-  },
-];
-
-const notification = () => {
+const Notification = () => {
   const navigation = useNavigation();
-  const [newNotifications, setNewNotifications] = useState(initialNewNotifications);
-  const [todayNotifications, setTodayNotifications] = useState(initialTodayNotifications);
+  const [chats, setChats] = useState(initialChats);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const totalNotifications = newNotifications.length + todayNotifications.length;
+  // Load last messages dynamically on focus
+  useEffect(() => {
+    const loadLastMessages = async () => {
+      try {
+        const updatedChats = await Promise.all(
+          initialChats.map(async (chat) => {
+            if (chat.isGroup) {
+              const saved = await AsyncStorage.getItem(`@group_chat_${chat.groupId}`);
+              if (saved) {
+                const messages = JSON.parse(saved);
+                if (messages.length > 0) {
+                  const lastMsg = messages[messages.length - 1];
+                  return {
+                    ...chat,
+                    lastMessage: `${lastMsg.senderName}: ${lastMsg.text}`,
+                    time: lastMsg.timestamp || chat.time,
+                  };
+                }
+              }
+            } else {
+              const saved = await AsyncStorage.getItem(`@chat_${chat.name}`);
+              if (saved) {
+                const messages = JSON.parse(saved);
+                if (messages.length > 0) {
+                  const lastMsg = messages[messages.length - 1];
+                  const prefix = lastMsg.fromMe ? "You: " : "";
+                  return {
+                    ...chat,
+                    lastMessage: `${prefix}${lastMsg.text}`,
+                    time: lastMsg.time || chat.time,
+                  };
+                }
+              }
+            }
+            return chat;
+          })
+        );
+        setChats(updatedChats);
+      } catch (e) {
+        console.error("Error loading last messages:", e);
+      }
+    };
 
-  const deleteNotification = (type, index) => {
-    if (type === "new") {
-      const updated = [...newNotifications];
-      updated.splice(index, 1);
-      setNewNotifications(updated);
+    loadLastMessages();
+    const unsubscribe = navigation.addListener("focus", loadLastMessages);
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+  };
+
+  const filteredChats = chats.filter((chat) =>
+    chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleChatPress = (item) => {
+    // Reset unread count on press
+    setChats(
+      chats.map((c) => (c.id === item.id ? { ...c, unreadCount: 0 } : c))
+    );
+
+    if (item.isGroup) {
+      navigation.navigate("groupchat", {
+        groupId: item.groupId,
+        groupName: item.name,
+        groupOwner: "Sarah",
+      });
     } else {
-      const updated = [...todayNotifications];
-      updated.splice(index, 1);
-      setTodayNotifications(updated);
+      navigation.navigate("ChatScreen", {
+        user: item.name,
+        avatar: item.avatar,
+      });
     }
   };
 
+  const renderChatItem = ({ item }) => (
+    <TouchableOpacity
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderBottomWidth: 0.8,
+        borderBottomColor: "#eee",
+        backgroundColor: "#fff",
+      }}
+      onPress={() => handleChatPress(item)}
+    >
+      {/* Avatar */}
+      <Image
+        source={{ uri: item.avatar }}
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          marginRight: 14,
+        }}
+      />
+
+      {/* Info Container */}
+      <View style={{ flex: 1 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 4,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "600",
+              color: "#000",
+              fontFamily: "Inter_400Regular",
+            }}
+            numberOfLines={1}
+          >
+            {item.name}
+          </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              color: item.unreadCount > 0 ? "#b5b88f" : "#888",
+              fontWeight: item.unreadCount > 0 ? "600" : "400",
+            }}
+          >
+            {item.time}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 14,
+              color: "#666",
+              flex: 1,
+              marginRight: 8,
+            }}
+            numberOfLines={1}
+          >
+            {item.lastMessage}
+          </Text>
+          {item.unreadCount > 0 && (
+            <View
+              style={{
+                backgroundColor: "#b5b88f",
+                borderRadius: 10,
+                minWidth: 20,
+                height: 20,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingHorizontal: 6,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#fff",
+                  fontSize: 11,
+                  fontWeight: "bold",
+                }}
+              >
+                {item.unreadCount}
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: "#000" }}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="light-content"
-      />
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       {/* Header */}
       <View
@@ -96,7 +272,7 @@ const notification = () => {
             style={{ transform: [{ translateY: width * 0.06 }] }}
             name="menu"
             size={width * 0.11}
-            color="#9CA37C"
+            color="#b5b88f"
           />
         </TouchableOpacity>
 
@@ -120,188 +296,71 @@ const notification = () => {
         </View>
       </View>
 
-      {/* Banner */}
+      {/* Chat List Area */}
       <View
         style={{
-          height: height * 0.15,
-          backgroundColor: "#b5b88f",
-          width: "100%",
-          borderColor: "black",
-          borderWidth: width * 0.008,
-          borderRadius: width * 0.02,
-        }}
-      />
-
-      {/* Notifications Section */}
-      <ScrollView
-        style={{
           flex: 1,
-          paddingHorizontal: width * 0.05,
-          height: height * 0.85,
           backgroundColor: "#fff",
-          borderRadius: width * 0.02,
-          padding: width * 0.05,
-          borderWidth: width * 0.008,
-          borderRadius: width * 0.02,
+          borderTopLeftRadius: width * 0.04,
+          borderTopRightRadius: width * 0.04,
+          paddingTop: 10,
         }}
       >
-        <Text
+        {/* Search Bar */}
+        <View
           style={{
-            fontSize: width * 0.05,
-            fontWeight: "bold",
-            marginVertical: height * 0.02,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
           }}
         >
-          Notifications{" "}
-          <Text style={{ fontWeight: "normal" }}>
-            {totalNotifications} new message{totalNotifications !== 1 ? "s" : ""}
-          </Text>
-        </Text>
-
-        {/* New Messages */}
-        <Text
-          style={{
-            fontSize: width * 0.045,
-            fontWeight: "bold",
-            marginBottom: height * 0.01,
-          }}
-        >
-          New
-        </Text>
-        {newNotifications.map((item, index) => (
           <View
-            key={index}
             style={{
               flexDirection: "row",
               alignItems: "center",
-              backgroundColor: "#d1d1c0",
-              padding: width * 0.04,
-              borderRadius: width * 0.02,
-              marginBottom: height * 0.01,
+              backgroundColor: "#f5f5ef",
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              height: 40,
+              borderWidth: 1,
+              borderColor: "#e6e6d8",
             }}
           >
-            <Image
-              source={{
-                uri: item.avatar,
-              }}
+            <Ionicons name="search" size={20} color="#888" style={{ marginRight: 8 }} />
+            <TextInput
+              placeholder="Search chats"
+              placeholderTextColor="#888"
+              value={searchQuery}
+              onChangeText={handleSearch}
               style={{
-                width: width * 0.12,
-                height: width * 0.12,
-                borderRadius: width * 0.06,
-                marginRight: width * 0.03,
+                flex: 1,
+                color: "#000",
+                fontSize: 15,
+                padding: 0,
               }}
             />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: width * 0.04, fontWeight: "500" }}>
-                {item.sender}
-              </Text>
-              <Text style={{ fontSize: width * 0.035, color: "#555" }}>
-                {item.time}
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#fff",
-                paddingVertical: height * 0.005,
-                paddingHorizontal: width * 0.03,
-                borderRadius: width * 0.02,
-                borderWidth: 1,
-                borderColor: "#aaa",
-                marginRight: width * 0.02,
-              }}
-              onPress={() => navigation.navigate("ChatScreen", {
-                user: "Sender",
-                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-              })}
-            >
-              <Text style={{ fontSize: width * 0.035, color: "#333" }}>
-                go to message
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => deleteNotification("new", index)}
-              style={{
-                padding: width * 0.015,
-              }}
-            >
-              <Feather name="trash-2" size={width * 0.06} color="#a00" />
-            </TouchableOpacity>
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Ionicons name="close-circle" size={18} color="#888" />
+              </TouchableOpacity>
+            )}
           </View>
-        ))}
+        </View>
 
-        {/* Today Messages */}
-        <Text
-          style={{
-            fontSize: width * 0.045,
-            fontWeight: "bold",
-            marginVertical: height * 0.01,
-          }}
-        >
-          Today
-        </Text>
-        {todayNotifications.map((item, index) => (
-          <View
-            key={index}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              backgroundColor: "#d1d1c0",
-              padding: width * 0.04,
-              borderRadius: width * 0.02,
-              marginBottom: height * 0.01,
-            }}
-          >
-            <Image
-              source={{
-                uri: item.avatar,
-              }}
-              style={{
-                width: width * 0.12,
-                height: width * 0.12,
-                borderRadius: width * 0.06,
-                marginRight: width * 0.03,
-              }}
-            />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: width * 0.04, fontWeight: "500" }}>
-                {item.sender}
-              </Text>
-              <Text style={{ fontSize: width * 0.035, color: "#555" }}>
-                {item.time}
-              </Text>
+        {/* Chats List */}
+        <FlatList
+          data={filteredChats}
+          keyExtractor={(item) => item.id}
+          renderItem={renderChatItem}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          ListEmptyComponent={
+            <View style={{ alignItems: "center", marginTop: 40 }}>
+              <Text style={{ color: "#888", fontSize: 15 }}>No chats found</Text>
             </View>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#fff",
-                paddingVertical: height * 0.005,
-                paddingHorizontal: width * 0.03,
-                borderRadius: width * 0.02,
-                borderWidth: 1,
-                borderColor: "#aaa",
-                marginRight: width * 0.02,
-              }}
-              onPress={() => navigation.navigate("ChatScreen", {
-                user: "Sender",
-                avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-              })}
-            >
-              <Text style={{ fontSize: width * 0.035, color: "#333" }}>
-                go to message
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => deleteNotification("today", index)}
-              style={{
-                padding: width * 0.015,
-              }}
-            >
-              <Feather name="trash-2" size={width * 0.06} color="#a00" />
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
+          }
+        />
+      </View>
     </View>
   );
 };
 
-export default notification;
+export default Notification;

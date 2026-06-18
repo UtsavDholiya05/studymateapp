@@ -3,12 +3,12 @@ import {
   View,
   Text,
   Image,
-  SafeAreaView,
   TouchableOpacity,
   StatusBar,
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,8 +25,18 @@ const ProfilePage = () => {
   const fetchUserData = async () => {
     try {
       const storedUser = await AsyncStorage.getItem("user");
-      if (!storedUser) throw new Error("User not found");
-      const user = JSON.parse(storedUser);
+      let user;
+      if (!storedUser) {
+        user = {
+          username: "Dummy User",
+          contact: "1234567890",
+          email: "dummyuser@studymate.com",
+          profileImage: "https://randomuser.me/api/portraits/women/44.jpg"
+        };
+        await AsyncStorage.setItem("user", JSON.stringify(user));
+      } else {
+        user = JSON.parse(storedUser);
+      }
       setUserData(user);
     } catch (error) {
       console.error("Failed to fetch user data:", error);

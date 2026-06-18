@@ -3,7 +3,6 @@ import {
   View,
   Text,
   Image,
-  SafeAreaView,
   TouchableOpacity,
   StatusBar,
   Dimensions,
@@ -13,6 +12,7 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,6 +28,25 @@ const MyGroups = () => {
   const [description, setDescription] = useState("");
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinGroupId, setJoinGroupId] = useState("");
+  const [userName, setUserName] = useState("Sarah Smiths");
+  const [userAvatar, setUserAvatar] = useState("https://randomuser.me/api/portraits/women/44.jpg");
+
+  // Load user data on mount
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          if (user.username) setUserName(user.username);
+          if (user.profileImage) setUserAvatar(user.profileImage);
+        }
+      } catch (e) {
+        console.error("Error loading user data:", e);
+      }
+    };
+    loadUserData();
+  }, []);
 
   // Load groups from AsyncStorage on mount
   useEffect(() => {
@@ -64,7 +83,7 @@ const MyGroups = () => {
       const newGroup = {
         id: newId,
         name: newGroupName,
-        owner: "You",
+        owner: userName,
         description: description.trim(),
       };
       setGroups([...groups, newGroup]);
@@ -100,18 +119,22 @@ const MyGroups = () => {
       Alert.alert("Validation Error", "Please enter a group ID.");
       return;
     }
-    // Find group by ID
-    const stored = await AsyncStorage.getItem("mygroups");
-    let allGroups = stored ? JSON.parse(stored) : [];
-    const group = allGroups.find((g) => String(g.id) === joinGroupId.trim());
-    if (!group) {
-      Alert.alert("Not Found", "No group found with this ID.");
-      return;
-    }
     // Check if already joined
     if (groups.some((g) => String(g.id) === joinGroupId.trim())) {
       Alert.alert("Already Joined", "You are already in this group.");
       return;
+    }
+    // Find group by ID
+    const stored = await AsyncStorage.getItem("mygroups");
+    let allGroups = stored ? JSON.parse(stored) : [];
+    let group = allGroups.find((g) => String(g.id) === joinGroupId.trim());
+    if (!group) {
+      group = {
+        id: joinGroupId.trim(),
+        name: `Group #${joinGroupId.trim()}`,
+        owner: "External User",
+        description: "Joined via Group ID",
+      };
     }
     setGroups([...groups, group]);
     setShowJoinModal(false);
@@ -202,7 +225,7 @@ const MyGroups = () => {
         >
           <Image
             source={{
-              uri: "https://randomuser.me/api/portraits/women/44.jpg",
+              uri: userAvatar,
             }}
             style={{
               width: width * 0.21,
@@ -234,7 +257,7 @@ const MyGroups = () => {
             top: -height * 0.089,
           }}
         >
-          Sarah Smiths
+          {userName}
         </Text>
 
         {/* My Groups Section */}

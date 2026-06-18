@@ -57,7 +57,7 @@ function HomeStackScreen() {
       <Stack.Screen name="profilepage" component={ProfilePage} />
       <Stack.Screen name="editprofilepage" component={EditProfilePage} />
       <Stack.Screen name='notes' component={require("./screens/notes").default} />
-      
+
     </Stack.Navigator>
   );
 }
@@ -78,6 +78,7 @@ function NotificationsStackScreen() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Notification" component={Notification} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
     </Stack.Navigator>
   );
 }
@@ -133,7 +134,7 @@ function MainDrawer() {
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
-      screenOptions={{ 
+      screenOptions={{
         headerShown: false,
         drawerStyle: {
           width: "75%",

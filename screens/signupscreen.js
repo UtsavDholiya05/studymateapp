@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   useWindowDimensions,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
@@ -13,7 +12,9 @@ import {
   Keyboard,
   StatusBar,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Icon from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BASE_URL = "https://studymate-cirr.onrender.com"; // Backend URL
 
@@ -80,35 +81,22 @@ const SignupScreen = ({ navigation }) => {
       !errors.contact
     ) {
       try {
-        console.log("Sending Signup Request with Payload:", formData);
-        const response = await fetch(`${BASE_URL}/user/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
+        const dummyToken = "dummy-jwt-token";
+        const dummyUser = {
+          username: formData.username,
+          contact: formData.contact,
+          email: formData.email,
+          profileImage: "https://randomuser.me/api/portraits/women/44.jpg"
+        };
 
-        console.log("Response Status:", response.status);
+        // Store the token and user details in AsyncStorage
+        await AsyncStorage.setItem("token", dummyToken);
+        await AsyncStorage.setItem("user", JSON.stringify(dummyUser));
 
-        const contentType = response.headers.get("content-type");
-        let responseData;
-
-        if (contentType && contentType.includes("application/json")) {
-          responseData = await response.json();
-        } else {
-          const textData = await response.text();
-          responseData = { message: textData };
-        }
-
-        console.log("Backend Response Data:", responseData);
-
-        if (response.ok) {
-          navigation.navigate("otpscreen", { email: formData.email });
-        } else {
-          alert(responseData.message || "Signup failed");
-        }
+        navigation.navigate("OtpScreen", { email: formData.email, authToken: dummyToken });
       } catch (error) {
-        console.error("Network Error Details:", error);
-        alert("Network error. Please try again.");
+        console.error("Mock Signup Error:", error);
+        alert("Signup failed. Please try again.");
       }
     } else {
       alert("Please fill all fields correctly");

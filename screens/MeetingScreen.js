@@ -100,7 +100,7 @@ const MeetingScreen = () => {
       title: "Join Meeting",
       icon: (
         <AntDesign
-          name="plussquare"
+          name="plus-square"
           size={width * 0.1}
           color="black"
           style={{ alignSelf: "center" }}

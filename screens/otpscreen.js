@@ -4,16 +4,16 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   useWindowDimensions,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import axios from "axios";
 
 const BASE_URL = "https://studymate-cirr.onrender.com";
 
-const otpscreen = ({ navigation, route }) => {
+const OtpScreen = ({ navigation, route }) => {
   const { email, authToken } = route.params;
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputs = useRef([]);
@@ -22,7 +22,7 @@ const otpscreen = ({ navigation, route }) => {
   // Send OTP on mount
   useEffect(() => {
     if (email && authToken) {
-      sendOtp();
+      // sendOtp();
     } else {
       Alert.alert("Error", "Missing information. Please go back and try again.");
       navigation.goBack();
@@ -247,4 +247,4 @@ const otpscreen = ({ navigation, route }) => {
   );
 };
 
-export default otpscreen;
+export default OtpScreen;

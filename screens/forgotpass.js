@@ -4,9 +4,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  SafeAreaView,
   useWindowDimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const ForgotPass = ({ navigation }) => {
@@ -85,7 +85,7 @@ const ForgotPass = ({ navigation }) => {
             alignItems: "center",
             width: "100%",
           }}
-          onPress={() => navigation.navigate("otpscreen", { email })} // <-- Pass email param
+          onPress={() => navigation.navigate("OtpScreen", { email })} // <-- Pass email param
         >
           <Text style={{ color: "white", fontSize: 18, fontFamily: "Inconsolata_400Regular" }}>Send Code</Text>
         </TouchableOpacity>

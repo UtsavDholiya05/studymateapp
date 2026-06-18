@@ -35,40 +35,40 @@ const GroupChatScreen = () => {
   const [currentUserName, setCurrentUserName] = useState("You");
   const [newMemberName, setNewMemberName] = useState("");
   const [newMemberEmail, setNewMemberEmail] = useState("");
+  const [currentUserAvatar, setCurrentUserAvatar] = useState("https://randomuser.me/api/portraits/men/1.jpg");
   const flatListRef = useRef();
 
   const MESSAGES_STORAGE_KEY = `@group_chat_${groupId}`;
   const MEMBERS_STORAGE_KEY = `@group_members_${groupId}`;
 
-  // Load current user info
+  // Load user info, messages and members
   useEffect(() => {
-    const loadUserInfo = async () => {
+    const initializeChat = async () => {
       try {
-        const userId = await AsyncStorage.getItem("userId");
-        const userName = await AsyncStorage.getItem("userName");
-        if (userId) setCurrentUserId(userId);
-        if (userName) setCurrentUserName(userName);
-      } catch (e) {
-        console.error("Error loading user info:", e);
-      }
-    };
-    loadUserInfo();
-  }, []);
+        let userId = "user123";
+        let userName = "You";
+        let userAvatar = "https://randomuser.me/api/portraits/men/1.jpg";
 
-  // Load messages and members
-  useEffect(() => {
-    const loadChatData = async () => {
-      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          if (user.username) userName = user.username;
+          if (user.email) userId = user.email;
+          if (user.profileImage) userAvatar = user.profileImage;
+        }
+
+        setCurrentUserId(userId);
+        setCurrentUserName(userName);
+        setCurrentUserAvatar(userAvatar);
+
+        // Load messages
         const savedMessages = await AsyncStorage.getItem(MESSAGES_STORAGE_KEY);
-        const savedMembers = await AsyncStorage.getItem(MEMBERS_STORAGE_KEY);
-
         if (savedMessages) {
           setMessages(JSON.parse(savedMessages));
         } else {
-          // Demo messages
           setMessages([
             {
-              id: 1,
+              id: "1",
               text: "Hey everyone! Let's study together",
               senderName: "Sarah",
               senderId: "user1",
@@ -76,15 +76,15 @@ const GroupChatScreen = () => {
               avatar: "https://randomuser.me/api/portraits/women/1.jpg",
             },
             {
-              id: 2,
+              id: "2",
               text: "I'm in! Let's focus on Chapter 5",
-              senderName: "You",
-              senderId: "user123",
+              senderName: userName,
+              senderId: userId,
               timestamp: "10:35am",
-              avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+              avatar: userAvatar,
             },
             {
-              id: 3,
+              id: "3",
               text: "Great! See you at the study session",
               senderName: "John",
               senderId: "user2",
@@ -94,15 +94,16 @@ const GroupChatScreen = () => {
           ]);
         }
 
+        // Load members
+        const savedMembers = await AsyncStorage.getItem(MEMBERS_STORAGE_KEY);
         if (savedMembers) {
           setMembers(JSON.parse(savedMembers));
         } else {
-          // Default members
           setMembers([
             {
-              id: "user123",
-              name: "You",
-              avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+              id: userId,
+              name: userName,
+              avatar: userAvatar,
               role: "Member",
             },
             {
@@ -126,11 +127,12 @@ const GroupChatScreen = () => {
           ]);
         }
       } catch (e) {
-        console.error("Error loading chat data:", e);
+        console.error("Error initializing group chat data:", e);
       }
     };
-    loadChatData();
-  }, []);
+
+    initializeChat();
+  }, [groupId]);
 
   // Save messages when updated
   useEffect(() => {
@@ -158,7 +160,7 @@ const GroupChatScreen = () => {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      avatar: "https://randomuser.me/api/portraits/men/1.jpg",
+      avatar: currentUserAvatar,
     };
 
     setMessages([...messages, newMessage]);
@@ -202,8 +204,8 @@ const GroupChatScreen = () => {
     return (
       <View
         style={{
-          marginVertical: 8,
-          marginHorizontal: 12,
+          marginVertical: width * 0.02,
+          marginHorizontal: width * 0.03,
           flexDirection: isMyMessage ? "row-reverse" : "row",
           alignItems: "flex-end",
         }}
@@ -212,35 +214,41 @@ const GroupChatScreen = () => {
           <Image
             source={{ uri: item.avatar }}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              marginHorizontal: 8,
+              width: width * 0.09,
+              height: width * 0.09,
+              borderRadius: width * 0.045,
+              marginHorizontal: width * 0.02,
             }}
           />
         )}
 
         <View
           style={{
-            backgroundColor: isMyMessage ? "#9CA37C" : "#2a2a2a",
-            borderRadius: 16,
-            paddingHorizontal: 12,
-            paddingVertical: 8,
+            backgroundColor: isMyMessage ? "#b5b88f" : "#fff",
+            borderRadius: width * 0.02,
+            paddingHorizontal: width * 0.03,
+            paddingVertical: width * 0.02,
             maxWidth: "75%",
+            minWidth: 60,
+            elevation: 1,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 1,
           }}
         >
           {!isMyMessage && (
-            <Text style={{ color: "#9CA37C", fontSize: 12, fontWeight: "600", marginBottom: 4 }}>
+            <Text style={{ color: "#b5b88f", fontSize: 12, fontWeight: "600", marginBottom: 4 }}>
               {item.senderName}
             </Text>
           )}
-          <Text style={{ color: isMyMessage ? "#000" : "#fff", fontSize: 14 }}>
+          <Text style={{ color: "#222", fontSize: width * 0.04 }}>
             {item.text}
           </Text>
           <Text
             style={{
-              color: isMyMessage ? "#000" : "#999",
-              fontSize: 11,
+              color: isMyMessage ? "#222" : "#888",
+              fontSize: width * 0.03,
               marginTop: 4,
               textAlign: "right",
             }}
@@ -253,24 +261,20 @@ const GroupChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, backgroundColor: "#000" }}
-    >
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
+    <View style={{ flex: 1, backgroundColor: "#b5b88f" }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       {/* Header */}
       <View
         style={{
-          backgroundColor: "#1a1a1a",
-          paddingVertical: 12,
-          paddingHorizontal: 16,
+          backgroundColor: "#d1d1c0",
+          paddingTop: width * 0.13,
+          paddingBottom: width * 0.04,
+          paddingHorizontal: width * 0.04,
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "space-between",
           borderBottomWidth: 1,
-          borderBottomColor: "#333",
-          paddingTop: height * 0.02,
+          borderBottomColor: "#b5b88f",
         }}
       >
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
@@ -281,20 +285,21 @@ const GroupChatScreen = () => {
             <MaterialIcons
               name="arrow-back-ios"
               size={24}
-              color="#9CA37C"
+              color="#444"
             />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text
               style={{
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: "600",
+                color: "#222",
+                fontFamily: "PlayfairDisplay_400Regular",
+                fontSize: width * 0.055,
+                fontWeight: "bold",
               }}
             >
               {groupName}
             </Text>
-            <Text style={{ color: "#999", fontSize: 12 }}>
+            <Text style={{ color: "#666", fontSize: width * 0.035 }}>
               {members.length} members
             </Text>
           </View>
@@ -304,77 +309,98 @@ const GroupChatScreen = () => {
           onPress={() => setShowMembers(true)}
           style={{ marginLeft: 12 }}
         >
-          <Ionicons name="people" size={24} color="#9CA37C" />
+          <Ionicons name="people" size={width * 0.07} color="#444" />
         </TouchableOpacity>
       </View>
 
-      {/* Messages List */}
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderMessage}
-        contentContainerStyle={{ paddingVertical: 12 }}
-        ListEmptyComponent={
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-              paddingVertical: height * 0.3,
-            }}
-          >
-            <Text style={{ color: "#666", fontSize: 16 }}>
-              No messages yet. Start the conversation!
-            </Text>
-          </View>
-        }
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: true })
-        }
-      />
-
-      {/* Input Bar */}
+      {/* Chat Area */}
       <View
         style={{
-          flexDirection: "row",
-          padding: 12,
-          backgroundColor: "#1a1a1a",
-          borderTopWidth: 1,
-          borderTopColor: "#333",
-          alignItems: "flex-end",
+          flex: 1,
+          backgroundColor: "#f5f5ef",
+          borderTopLeftRadius: width * 0.04,
+          borderTopRightRadius: width * 0.04,
+          paddingTop: width * 0.03,
         }}
       >
-        <TextInput
-          style={{
-            flex: 1,
-            backgroundColor: "#2a2a2a",
-            color: "#fff",
-            paddingHorizontal: 16,
-            paddingVertical: 10,
-            borderRadius: 20,
-            marginRight: 8,
-            maxHeight: 100,
-          }}
-          placeholder="Type a message..."
-          placeholderTextColor="#666"
-          value={input}
-          onChangeText={setInput}
-          multiline
+        {/* Messages List */}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderMessage}
+          contentContainerStyle={{ paddingVertical: 12, paddingBottom: 120 }}
+          ListEmptyComponent={
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                paddingVertical: height * 0.3,
+              }}
+            >
+              <Text style={{ color: "#888", fontSize: 16 }}>
+                No messages yet. Start the conversation!
+              </Text>
+            </View>
+          }
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
         />
-        <TouchableOpacity
-          onPress={sendMessage}
+
+        {/* Input Bar */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
           style={{
-            backgroundColor: "#9CA37C",
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            justifyContent: "center",
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#e6e6d8",
+            borderTopWidth: 1,
+            borderColor: "#d1d1c0",
+            flexDirection: "row",
             alignItems: "center",
+            paddingHorizontal: width * 0.03,
+            paddingVertical: height * 0.012,
           }}
         >
-          <Ionicons name="send" size={20} color="#000" />
-        </TouchableOpacity>
+          <TextInput
+            style={{
+              flex: 1,
+              backgroundColor: "#f5f5ef",
+              borderRadius: width * 0.02,
+              borderWidth: 0,
+              paddingHorizontal: width * 0.04,
+              paddingVertical: width * 0.02,
+              fontSize: width * 0.04,
+              marginRight: width * 0.02,
+              color: "#000",
+              fontWeight: "400",
+            }}
+            placeholder="Type a message..."
+            placeholderTextColor="#888"
+            value={input}
+            onChangeText={setInput}
+            onSubmitEditing={sendMessage}
+            returnKeyType="send"
+            multiline
+          />
+          <TouchableOpacity
+            onPress={sendMessage}
+            style={{
+              backgroundColor: "#b5b88f",
+              padding: width * 0.025,
+              borderRadius: width * 0.04,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Feather name="send" size={width * 0.06} color="#444" />
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
       </View>
 
       {/* Members Modal */}
@@ -382,17 +408,19 @@ const GroupChatScreen = () => {
         <View
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
             paddingTop: height * 0.15,
           }}
         >
           <View
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#f5f5ef",
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               height: height * 0.75,
               paddingTop: 20,
+              borderWidth: 1,
+              borderColor: "#d1d1c0",
             }}
           >
             <View
@@ -406,7 +434,7 @@ const GroupChatScreen = () => {
             >
               <Text
                 style={{
-                  color: "#fff",
+                  color: "#222",
                   fontSize: 18,
                   fontWeight: "600",
                 }}
@@ -417,18 +445,18 @@ const GroupChatScreen = () => {
                 <TouchableOpacity
                   onPress={() => setShowAddMember(true)}
                   style={{
-                    backgroundColor: "#9CA37C",
+                    backgroundColor: "#b5b88f",
                     paddingHorizontal: 12,
                     paddingVertical: 8,
                     borderRadius: 8,
                   }}
                 >
-                  <Text style={{ color: "#000", fontWeight: "600", fontSize: 12 }}>
+                  <Text style={{ color: "#444", fontWeight: "600", fontSize: 12 }}>
                     + Add
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowMembers(false)}>
-                  <Ionicons name="close" size={28} color="#fff" />
+                  <Ionicons name="close" size={28} color="#222" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -445,7 +473,7 @@ const GroupChatScreen = () => {
                     alignItems: "center",
                     paddingVertical: 12,
                     borderBottomWidth: 1,
-                    borderBottomColor: "#2a2a2a",
+                    borderBottomColor: "#d1d1c0",
                   }}
                 >
                   <Image
@@ -460,21 +488,21 @@ const GroupChatScreen = () => {
                   <View style={{ flex: 1 }}>
                     <Text
                       style={{
-                        color: "#fff",
+                        color: "#222",
                         fontSize: 14,
                         fontWeight: "600",
                       }}
                     >
                       {member.name}
                     </Text>
-                    <Text style={{ color: "#999", fontSize: 12 }}>
+                    <Text style={{ color: "#666", fontSize: 12 }}>
                       {member.role}
                     </Text>
                   </View>
                   {member.role === "Admin" && (
                     <View
                       style={{
-                        backgroundColor: "#9CA37C",
+                        backgroundColor: "#b5b88f",
                         paddingHorizontal: 8,
                         paddingVertical: 4,
                         borderRadius: 12,
@@ -482,7 +510,7 @@ const GroupChatScreen = () => {
                     >
                       <Text
                         style={{
-                          color: "#000",
+                          color: "#444",
                           fontSize: 11,
                           fontWeight: "600",
                         }}
@@ -503,18 +531,20 @@ const GroupChatScreen = () => {
         <View
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
             justifyContent: "flex-end",
           }}
         >
           <View
             style={{
-              backgroundColor: "#1a1a1a",
+              backgroundColor: "#f5f5ef",
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               paddingHorizontal: 20,
               paddingVertical: 30,
               paddingBottom: 40,
+              borderWidth: 1,
+              borderColor: "#d1d1c0",
             }}
           >
             <View
@@ -527,7 +557,7 @@ const GroupChatScreen = () => {
             >
               <Text
                 style={{
-                  color: "#fff",
+                  color: "#222",
                   fontSize: 18,
                   fontWeight: "600",
                 }}
@@ -535,40 +565,44 @@ const GroupChatScreen = () => {
                 Add Member to Group
               </Text>
               <TouchableOpacity onPress={() => setShowAddMember(false)}>
-                <Ionicons name="close" size={28} color="#fff" />
+                <Ionicons name="close" size={28} color="#222" />
               </TouchableOpacity>
             </View>
 
             <TextInput
               placeholder="Member Name"
-              placeholderTextColor="#666"
+              placeholderTextColor="#888"
               value={newMemberName}
               onChangeText={setNewMemberName}
               style={{
-                backgroundColor: "#2a2a2a",
-                color: "#fff",
+                backgroundColor: "#fff",
+                color: "#000",
                 paddingHorizontal: 16,
                 paddingVertical: 12,
                 borderRadius: 10,
                 marginBottom: 12,
                 fontSize: 14,
+                borderWidth: 1,
+                borderColor: "#d1d1c0",
               }}
             />
 
             <TextInput
               placeholder="Email (Optional)"
-              placeholderTextColor="#666"
+              placeholderTextColor="#888"
               value={newMemberEmail}
               onChangeText={setNewMemberEmail}
               keyboardType="email-address"
               style={{
-                backgroundColor: "#2a2a2a",
-                color: "#fff",
+                backgroundColor: "#fff",
+                color: "#000",
                 paddingHorizontal: 16,
                 paddingVertical: 12,
                 borderRadius: 10,
                 marginBottom: 20,
                 fontSize: 14,
+                borderWidth: 1,
+                borderColor: "#d1d1c0",
               }}
             />
 
@@ -577,13 +611,13 @@ const GroupChatScreen = () => {
                 onPress={() => setShowAddMember(false)}
                 style={{
                   flex: 1,
-                  backgroundColor: "#2a2a2a",
+                  backgroundColor: "#e6e6d8",
                   paddingVertical: 14,
                   borderRadius: 10,
                   alignItems: "center",
                 }}
               >
-                <Text style={{ color: "#fff", fontWeight: "600", fontSize: 14 }}>
+                <Text style={{ color: "#222", fontWeight: "600", fontSize: 14 }}>
                   Cancel
                 </Text>
               </TouchableOpacity>
@@ -592,13 +626,13 @@ const GroupChatScreen = () => {
                 onPress={addNewMember}
                 style={{
                   flex: 1,
-                  backgroundColor: "#9CA37C",
+                  backgroundColor: "#b5b88f",
                   paddingVertical: 14,
                   borderRadius: 10,
                   alignItems: "center",
                 }}
               >
-                <Text style={{ color: "#000", fontWeight: "600", fontSize: 14 }}>
+                <Text style={{ color: "#444", fontWeight: "600", fontSize: 14 }}>
                   Add Member
                 </Text>
               </TouchableOpacity>
@@ -606,7 +640,7 @@ const GroupChatScreen = () => {
           </View>
         </View>
       </Modal>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 

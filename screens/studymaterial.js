@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
-const notesScreen = () => {
+const NotesScreen = () => {
   const navigation = useNavigation();
   const [folders, setFolders] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -33,7 +33,10 @@ const notesScreen = () => {
       ]);
     };
     loadFolders();
-  }, []);
+
+    const unsubscribe = navigation.addListener("focus", loadFolders);
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     AsyncStorage.setItem("folders", JSON.stringify(folders));
@@ -119,9 +122,6 @@ const notesScreen = () => {
         onPress={() => {
           navigation.navigate("FolderDetail", {
             folder: item,
-            updateFolder: (updatedFolder) => {
-              setFolders(folders.map(f => f.id === updatedFolder.id ? updatedFolder : f));
-            }
           });
         }}
       >
@@ -351,4 +351,4 @@ const notesScreen = () => {
   );
 };
 
-export default notesScreen;
+export default NotesScreen;

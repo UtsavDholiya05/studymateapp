@@ -19,15 +19,31 @@ import * as DocumentPicker from "expo-document-picker";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system";
 import Constants from "expo-constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
 const FolderDetailScreen = ({ route, navigation }) => {
-  const { folder, updateFolder } = route.params;
+  const { folder } = route.params;
   const [files, setFiles] = useState(folder.files || []);
   const [pdfToView, setPdfToView] = useState(null);
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+
+  const saveFolderUpdate = async (newFiles) => {
+    try {
+      const storedFolders = await AsyncStorage.getItem("folders");
+      if (storedFolders) {
+        const folders = JSON.parse(storedFolders);
+        const updatedFolders = folders.map(f =>
+          f.id === folder.id ? { ...f, files: newFiles } : f
+        );
+        await AsyncStorage.setItem("folders", JSON.stringify(updatedFolders));
+      }
+    } catch (e) {
+      console.error("Error saving folder update:", e);
+    }
+  };
 
   const addImage = async () => {
     setLoading(true);
@@ -40,7 +56,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
         const uri = result.assets[0].uri;
         const newFiles = [...files, { type: "image", uri }];
         setFiles(newFiles);
-        updateFolder({ ...folder, files: newFiles });
+        saveFolderUpdate(newFiles);
         Alert.alert("Success", "Image added!");
       }
     } catch (e) {
@@ -57,7 +73,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
         const asset = result.assets[0];
         const newFiles = [...files, { type: "pdf", uri: asset.uri, name: asset.name }];
         setFiles(newFiles);
-        updateFolder({ ...folder, files: newFiles });
+        saveFolderUpdate(newFiles);
         Alert.alert("Success", "PDF added!");
       }
     } catch (e) {
@@ -72,7 +88,7 @@ const FolderDetailScreen = ({ route, navigation }) => {
   const deleteFile = (idx) => {
     const newFiles = files.filter((_, i) => i !== idx);
     setFiles(newFiles);
-    updateFolder({ ...folder, files: newFiles });
+    saveFolderUpdate(newFiles);
   };
 
   // Separate images and pdfs for better UI
