@@ -159,7 +159,9 @@ const ChatScreen = () => {
       </View>
 
       {/* Chat Area */}
-      <View
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         style={{
           flex: 1,
           backgroundColor: "#f5f5ef",
@@ -172,7 +174,7 @@ const ChatScreen = () => {
           ref={flatListRef}
           data={messages}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ paddingHorizontal: width * 0.04, paddingBottom: 120 }}
+          contentContainerStyle={{ paddingHorizontal: width * 0.04, paddingBottom: 20 }}
           renderItem={({ item }) => (
             <View style={{ marginBottom: width * 0.025 }}>
               <View
@@ -206,14 +208,8 @@ const ChatScreen = () => {
         />
 
         {/* Input at Bottom */}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        <View
           style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
             backgroundColor: "#e6e6d8",
             borderTopWidth: 1,
             borderColor: "#d1d1c0",
@@ -255,8 +251,8 @@ const ChatScreen = () => {
           >
             <Feather name="send" size={width * 0.06} color="#444" />
           </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
       <Text style={{position: 'absolute', top: -20, left: 10, color: 'red'}}>
         Text: {input}
       </Text>

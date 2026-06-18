@@ -85,6 +85,16 @@ function NotificationsStackScreen() {
   );
 }
 
+// Stack navigator for Profile tab
+function ProfileStackScreen() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="profilepage" component={ProfilePage} />
+      <Stack.Screen name="editprofilepage" component={EditProfilePage} />
+    </Stack.Navigator>
+  );
+}
+
 // Bottom Tab Navigator - This goes INSIDE the drawer
 function MainTabNavigator() {
   return (
@@ -106,6 +116,7 @@ function MainTabNavigator() {
           height: width * 0.18,
           paddingBottom: width * 0.03,
           paddingTop: width * 0.01,
+          
         },
         tabBarIcon: ({ color, size }) => {
           if (route.name === "Home") {
@@ -126,7 +137,7 @@ function MainTabNavigator() {
       <Tab.Screen name="Home" component={HomeStackScreen} />
       {/* <Tab.Screen name="Groups" component={GroupsStackScreen} /> */}
       <Tab.Screen name="Notifications" component={NotificationsStackScreen} />
-      <Tab.Screen name="Profile" component={ProfilePage} />
+      <Tab.Screen name="Profile" component={ProfileStackScreen} />
     </Tab.Navigator>
   );
 }

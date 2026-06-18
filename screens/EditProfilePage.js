@@ -10,6 +10,8 @@ import {
   TextInput,
   Alert,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -128,7 +130,7 @@ const EditProfilePage = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
+    <View style={{ flex: 1, backgroundColor: "black" }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       {/* Header */}
@@ -173,124 +175,134 @@ const EditProfilePage = () => {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Banner */}
-        <View
-          style={{
-            height: height * 0.20,
-            backgroundColor: "#b5b88f",
-            width: "100%",
-            borderColor: "black",
-            borderWidth: width * 0.008,
-            borderRadius: width * 0.02,
-          }}
-        />
-
-        {/* Profile Card */}
-        <View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          {/* Banner */}
           <View
             style={{
-              backgroundColor: "#fff",
-              borderRadius: width * 0.02,
-              padding: width * 0.05,
-              paddingTop: height * 0.12,
+              height: height * 0.20,
+              backgroundColor: "#b5b88f",
+              width: "100%",
+              borderColor: "black",
               borderWidth: width * 0.008,
-              marginTop: -height * 0.05,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 5,
-              elevation: 5,
+              borderRadius: width * 0.02,
             }}
-          >
-            {/* Profile Image */}
+          />
+
+          {/* Profile Card */}
+          <View style={{ flex: 1 }}>
             <View
               style={{
-                position: "absolute",
-                top: -height * 0.045,
-                left: width * 0.09,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Image
-                source={{
-                  uri:
-                    userData?.profileImage ||
-                    "https://randomuser.me/api/portraits/women/44.jpg",
-                }}
-                style={{
-                  width: width * 0.21,
-                  height: width * 0.21,
-                  borderRadius: width * 0.21,
-                }}
-              />
-              <TouchableOpacity
-                style={{
-                  marginLeft: -width * 0.06,
-                  backgroundColor: "white",
-                  width: width * 0.08,
-                  height: width * 0.08,
-                  borderRadius: width * 0.04,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transform: [{ translateY: width * 0.05 }],
-                }}
-                onPress={() => console.log("Change profile picture clicked")}
-              >
-                <Feather name="plus" size={width * 0.07} color="black" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Editable Fields */}
-            <Text
-              style={{
-                fontSize: width * 0.06,
-                fontWeight: "bold",
-                marginTop: -height * 0.055,
-                marginBottom: height * 0.02,
-              }}
-            >
-              {userData?.username || "User"}
-            </Text>
-            <Text
-              style={{
-                fontSize: width * 0.05,
-                fontWeight: "500",
-                marginBottom: height * 0.02,
-              }}
-            >
-              Edit info
-            </Text>
-
-            {renderEditableRow("Name", "username", "Enter your name")}
-            {renderEditableRow("Contact No", "contact", "Enter your contact")}
-            {renderEditableRow("Email", "email", "Enter your email")}
-
-            <TouchableOpacity
-              style={{
-                marginTop: height * 0.05,
-                backgroundColor: "#9CA37C",
-                paddingVertical: height * 0.02,
+                flex: 1,
+                backgroundColor: "#fff",
                 borderRadius: width * 0.02,
-                alignItems: "center",
+                padding: width * 0.05,
+                paddingTop: height * 0.12,
+                borderWidth: width * 0.008,
+                marginTop: -height * 0.05,
+                marginBottom: height * 0.02,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 5,
+                elevation: 5,
               }}
-              onPress={handleSaveChanges}
             >
+              {/* Profile Image */}
+              <View
+                style={{
+                  position: "absolute",
+                  top: -height * 0.045,
+                  left: width * 0.09,
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  source={{
+                    uri:
+                      userData?.profileImage ||
+                      "https://randomuser.me/api/portraits/women/44.jpg",
+                  }}
+                  style={{
+                    width: width * 0.21,
+                    height: width * 0.21,
+                    borderRadius: width * 0.21,
+                  }}
+                />
+                <TouchableOpacity
+                  style={{
+                    marginLeft: -width * 0.06,
+                    backgroundColor: "white",
+                    width: width * 0.08,
+                    height: width * 0.08,
+                    borderRadius: width * 0.04,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transform: [{ translateY: width * 0.05 }],
+                  }}
+                  onPress={() => console.log("Change profile picture clicked")}
+                >
+                  <Feather name="plus" size={width * 0.07} color="black" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Editable Fields */}
               <Text
                 style={{
-                  color: "white",
-                  fontSize: width * 0.05,
-                  fontWeight: "600",
+                  fontSize: width * 0.06,
+                  fontWeight: "bold",
+                  marginTop: -height * 0.055,
+                  marginBottom: height * 0.02,
                 }}
               >
-                Save Changes
+                {userData?.username || "User"}
               </Text>
-            </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: width * 0.05,
+                  fontWeight: "500",
+                  marginBottom: height * 0.02,
+                }}
+              >
+                Edit info
+              </Text>
+
+              {renderEditableRow("Name", "username", "Enter your name")}
+              {renderEditableRow("Contact No", "contact", "Enter your contact")}
+              {renderEditableRow("Email", "email", "Enter your email")}
+
+              <TouchableOpacity
+                style={{
+                  marginTop: height * 0.05,
+                  backgroundColor: "#9CA37C",
+                  paddingVertical: height * 0.02,
+                  borderRadius: width * 0.02,
+                  alignItems: "center",
+                }}
+                onPress={handleSaveChanges}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: width * 0.05,
+                    fontWeight: "600",
+                  }}
+                >
+                  Save Changes
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 

@@ -86,7 +86,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "black" }}>
+    <View style={{ flex: 1, backgroundColor: "black" }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       {/* Header */}
@@ -144,16 +144,17 @@ const ProfilePage = () => {
       />
 
       {/* Profile Card */}
-      <View>
+      <View style={{ flex: 1 }}>
         <View
           style={{
-            height: height * 0.85,
+            flex: 1,
             backgroundColor: "#fff",
             borderRadius: width * 0.02,
             padding: width * 0.05,
             paddingTop: height * 0.12,
             borderWidth: width * 0.008,
             marginTop: -height * 0.05,
+            marginBottom: height * 0.02,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
@@ -247,7 +248,7 @@ const ProfilePage = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 

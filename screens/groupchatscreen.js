@@ -343,7 +343,9 @@ const GroupChatScreen = () => {
       </View>
 
       {/* Chat Area */}
-      <View
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
         style={{
           flex: 1,
           backgroundColor: "#f5f5ef",
@@ -358,7 +360,7 @@ const GroupChatScreen = () => {
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={renderMessage}
-          contentContainerStyle={{ paddingVertical: 12, paddingBottom: 120 }}
+          contentContainerStyle={{ paddingVertical: 12, paddingBottom: 20 }}
           ListEmptyComponent={
             <View
               style={{
@@ -379,14 +381,8 @@ const GroupChatScreen = () => {
         />
 
         {/* Input Bar */}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        <View
           style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
             backgroundColor: "#e6e6d8",
             borderTopWidth: 1,
             borderColor: "#d1d1c0",
@@ -429,8 +425,8 @@ const GroupChatScreen = () => {
           >
             <Feather name="send" size={width * 0.06} color="#444" />
           </TouchableOpacity>
-        </KeyboardAvoidingView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
 
       {/* Members Modal */}
       <Modal visible={showMembers} transparent animationType="slide">
